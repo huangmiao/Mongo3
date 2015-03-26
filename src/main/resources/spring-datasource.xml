@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	   xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+	   xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    
+    <!--引入属性文件 -->
+    <context:property-placeholder file-encoding="UTF-8" ignore-unresolvable="true" location="classpath:config.properties"/>
+	<bean id="mongoDatasource" class="com.mhuang.common.frame.factorybean.MongoDataSource" init-method="init">
+		<property name="database" value="test"/>
+		<property name="base" value="true"></property>
+		<property name="serverAddresses">
+			<array>
+				<bean class="com.mongodb.ServerAddress">
+					<constructor-arg type="String" value="${mongo.db.host}"></constructor-arg>
+					<constructor-arg type="int" value="${mongo.do.port}"></constructor-arg>
+				</bean>
+			</array>
+		</property>
+	</bean>
+	<bean id="mongoFacotry" class="com.mhuang.common.frame.factorybean.MongoFacotry">
+		<property name="mongoDataSource" ref="mongoDatasource"></property>
+	</bean>
+</beans>   

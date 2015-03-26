@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:c="http://www.springframework.org/schema/c" xmlns:cache="http://www.springframework.org/schema/cache" xmlns:context="http://www.springframework.org/schema/context" xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:jee="http://www.springframework.org/schema/jee" xmlns:lang="http://www.springframework.org/schema/lang" xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:p="http://www.springframework.org/schema/p" xmlns:task="http://www.springframework.org/schema/task" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+		>
+	<!--开启aop代理-->
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+	<!-- 扫描注解Controller类 -->
+	<context:component-scan base-package="com" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+    <!-- 多视图解析 .json .xml 使用spring3.2以后的配置  XML为springMVC4.1新出方案。不需要使用Xstream等xml解析中间件-->
+    <bean
+        class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+        <property name="order" value="1" />
+        <property name="contentNegotiationManager" ref="cnManager"/>
+        <property name="defaultViews">
+        	<list>
+        		<bean p:modelKey="jsonData" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"/>
+        		<bean  class="org.springframework.web.servlet.view.xml.MappingJackson2XmlView"/>
+        	</list>
+        </property>	
+        <property name="viewResolvers" ref="viewResolver"></property>
+     </bean>
+        <!-- 对模型视图名称的解析，即在模型视图名称添加前后缀 -->
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver" p:prefix="/WEB-INF/views/" p:suffix=".jsp" />
+    <!-- spring3.2 Configuation -->
+    <bean id="cnManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+        <!-- 取消默认支持spring源码中的format=json格式-->
+        <property name="favorParameter" value="false" />
+        <!-- 默认=-=熟悉中 -->
+        <property name="favorPathExtension" value="true" />
+        <!-- 设置为true以忽略对Accept Header的支持 -->
+        <property name="ignoreAcceptHeader" value="true" />
+        <!-- 默认视图解析 -->
+        <property name="defaultContentType" value="text/html" />
+        <!-- 扩展名至mimeType的映射,即 /user.json => application/json -->
+        <property name="mediaTypes">
+            <map>
+            	<entry key="html" value="text/html"></entry>
+                <entry key="json" value="application/json" />
+                <entry key="xml" value="application/xml" />
+            </map>
+        </property>
+    </bean>
+    <!-- mvc资源管理 -->
+    <mvc:resources location="/resources/**" mapping="/resource/"/>
+  	<!-- mvc注解驱动 -->
+    <mvc:annotation-driven/>
+</beans>
